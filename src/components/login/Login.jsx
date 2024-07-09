@@ -1,6 +1,6 @@
 // src/components/Login.jsx
 import React, { useState } from "react";
-import "./Login.css";
+import styles from "./Login.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useUser } from '../../userContext';
@@ -39,26 +39,26 @@ export default function Login() {
     };
 
     return (
-        <section className="login">
-            <div className="imgBx">
+        <section className={styles.login}>
+            <div className={styles.imgBx}>
                 <img src={netfotechLogo} alt="Logo" /> {/* Use the imported logo */}
             </div>
-            <div className="contentBx">
-                <div className="formBx">
+            <div className={styles.contentBx}>
+                <div className={styles.formBx}>
                     <h2>Login</h2>
                     <form onSubmit={login}>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <span>Email Id</span>
                             <input type="email" name="email" value={userInput.email} required onChange={handleChange} />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <span>Password</span>
                             <input type="Password" name="password" value={userInput.password} required pattern="(?=.*\d)(?=.*[\W_]).{7,}" title="Minimum of 7 characters. Should have at least one special character and one number." onChange={handleChange} />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <input type="submit" value="Sign in" />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <p>Don't have an account? <Link to="/">Signup</Link></p>
                         </div>
                     </form>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Signup.css";
+import styles from "./Signup.module.css";
 import { useNavigate } from 'react-router-dom';
 import netfotechLogo from "../../Assets/Netfotech logo.png";
 
@@ -45,35 +45,35 @@ export default function Signup() {
     };
 
     return (
-        <section className="signup">
-            <div className="imgBx">
+        <section className={styles.signup}>
+            <div className={styles.imgBx}>
                 <img src={netfotechLogo} alt="Logo" />
             </div>
-            <div className="contentBx">
-                <div className="formBx">
+            <div className={styles.contentBx}>
+                <div className={styles.formBx}>
                     <h2>Sign Up</h2>
                     <form onSubmit={register}>
                         {error && <p className="error">{error}</p>}
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <span>Username</span>
                             <input type="text" name="name" value={user.name} required onChange={handleChange} />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <span>Email Id</span>
                             <input type="email" name="email" value={user.email} required onChange={handleChange} />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <span>Password</span>
                             <input type="Password" name="password" value={user.password} required pattern="(?=.*\d)(?=.*[\W_]).{7,}" title="Minimum of 7 characters. Should have at least one special character and one number." onChange={handleChange} />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <span>ReEnter-Password</span>
                             <input type="Password" name="reEnterPassword" value={user.reEnterPassword} required pattern="(?=.*\d)(?=.*[\W_]).{7,}" title="Minimum of 7 characters. Should have at least one special character and one number." onChange={handleChange} />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <input type="submit" value="Sign Up" />
                         </div>
-                        <div className="inputBx">
+                        <div className={styles.inputBx}>
                             <p>Already have an account? <a href="/login">Sign In</a></p>
                         </div>
                     </form>

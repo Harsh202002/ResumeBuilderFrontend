@@ -1,25 +1,34 @@
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
+import './Resume.css';
+import axios from 'axios';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { useUser } from '../../userContext';
+import { useNavigate } from 'react-router-dom';
+
 import {
-  AtSign,
   Calendar,
-  GitHub,
-  Linkedin,
-  MapPin,
   Paperclip,
-  Phone,
 } from "react-feather";
 
 import styles from "./Resume.module.css";
-import logo from "../../Assets/netfologo.png"; // Import your logo
+import logo from "../../Assets/netfologo.png";
+
+
 
 const Resume = forwardRef((props, ref) => {
   const information = props.information;
   const sections = props.sections;
   const containerRef = useRef();
-
-  const [columns, setColumns] = useState([[], []]);
-  const [source, setSource] = useState("");
-  const [target, seTarget] = useState("");
+  const navigate = useNavigate();
+  const { user } = useUser();
+  axios.defaults.withCredentials = true;
+  useEffect(() => {
+    if (!user) {
+      alert("Please login first");
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const info = {
     workExp: information[sections.workExp],
@@ -32,6 +41,39 @@ const Resume = forwardRef((props, ref) => {
     certification: information[sections.certification],
   };
 
+  const handleSaveResume = async () => {
+    try {
+      const input = document.getElementById('resume');
+      const canvas = await html2canvas(input);
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [660, canvas.height]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, 660, canvas.height);
+      const pdfBlob = pdf.output('blob');
+
+      const formData = new FormData();
+      formData.append('resumePdf', pdfBlob, 'resume.pdf');
+      formData.append('name', info.basicInfo?.detail?.name);
+      formData.append('designation', info.workExp?.details[0]?.designation);
+      formData.append('skills', info.skills?.points.join(','));
+
+      await axios.post('http://localhost:9002/saveResume', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        withCredentials: true
+      });
+
+      alert('Resume saved successfully!');
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      alert('Failed to save resume');
+    }
+  };
+
   const getFormattedDate = (value) => {
     if (!value) return "";
     const date = new Date(value);
@@ -39,369 +81,227 @@ const Resume = forwardRef((props, ref) => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
-  const sectionDiv = {
-    [sections.workExp]: (
-      <div
-        key={"workexp"}
-        draggable
-        onDragOver={() => seTarget(info.workExp?.id)}
-        onDragEnd={() => setSource(info.workExp?.id)}
-        className={`${styles.section} ${
-          info.workExp?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>{info.workExp.sectionTitle}</div>
-        <div className={styles.content}>
-          {info.workExp?.details?.map((item) => (
-            <div className={styles.item} key={item.title}>
-              {item.title ? (
-                <p className={styles.title}>{item.title}</p>
-              ) : (
-                <span />
-              )}
-              {item.companyName ? (
-                <p className={styles.subTitle}>{item.companyName}</p>
-              ) : (
-                <span />
-              )}
-              {item.certificationLink ? (
-                <a className={styles.link} href={item.certificationLink}>
-                  <Paperclip />
-                  {item.certificationLink}
-                </a>
-              ) : (
-                <span />
-              )}
-              {item.startDate && item.endDate ? (
-                <div className={styles.date}>
-                  <Calendar /> {getFormattedDate(item.startDate)}-
-                  {getFormattedDate(item.endDate)}
-                </div>
-              ) : (
-                <div />
-              )}
-              {item.location ? (
-                <p className={styles.subTitle}>
-                  <MapPin /> {item.location}
-                </p>
-              ) : (
-                <span />
-              )}
-              {item.points?.length > 0 ? (
-                <ul className={styles.points}>
-                  {item.points?.map((elem, index) => (
-                    <li className={styles.point} key={elem + index}>
-                      {elem}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <span />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-    [sections.project]: (
-      <div
-        key={"project"}
-        draggable
-        onDragOver={() => seTarget(info.project?.id)}
-        onDragEnd={() => setSource(info.project?.id)}
-        className={`${styles.section} ${
-          info.project?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>{info.project.sectionTitle}</div>
-        <div className={styles.content}>
-          {info.project?.details?.map((item) => (
-            <div className={styles.item}>
-              {item.title ? (
-                <p className={styles.title}>{item.title}</p>
-              ) : (
-                <span />
-              )}
-              {item.link ? (
-                <a className={styles.link} href={item.link}>
-                  <Paperclip />
-                  {item.link}
-                </a>
-              ) : (
-                <span />
-              )}
-              {item.github ? (
-                <a className={styles.link} href={item.github}>
-                  <GitHub />
-                  {item.github}
-                </a>
-              ) : (
-                <span />
-              )}
-              {item.overview ? (
-                <p className={styles.overview}>{item.overview} </p>
-              ) : (
-                <span />
-              )}
-              {item.points?.length > 0 ? (
-                <ul className={styles.points}>
-                  {item.points?.map((elem, index) => (
-                    <li className={styles.point} key={elem + index}>
-                      {elem}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <span />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-    [sections.education]: (
-      <div
-        key={"education"}
-        draggable
-        onDragOver={() => seTarget(info.education?.id)}
-        onDragEnd={() => setSource(info.education?.id)}
-        className={`${styles.section} ${
-          info.education?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>
-          {info.education?.sectionTitle}
-        </div>
-        <div className={styles.content}>
-          {info.education?.details?.map((item) => (
-            <div className={styles.item}>
-              {item.title ? (
-                <p className={styles.title}>{item.title}</p>
-              ) : (
-                <span />
-              )}
-              {item.college ? (
-                <p className={styles.subTitle}>{item.college}</p>
-              ) : (
-                <span />
-              )}
-              {item.startDate && item.endDate ? (
-                <div className={styles.date}>
-                  <Calendar /> {getFormattedDate(item.startDate)} -
-                  {getFormattedDate(item.endDate)}
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-    [sections.skills]: (
-      <div
-        key={"skills"}
-        draggable
-        onDragOver={() => seTarget(info.skills?.id)}
-        onDragEnd={() => setSource(info.skills?.id)}
-        className={`${styles.section} ${
-          info.skills?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>
-          {info.skills?.sectionTitle}
-        </div>
-        <div className={styles.content}>
-          {info.skills?.points?.length > 0 ? (
-            <ul className={styles.numbered}>
-              {info.skills?.points?.map((elem, index) => (
-                <li className={styles.point} key={elem[0] + index}> 
-                  {elem}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <span />
-          )}
-        </div>
-      </div>
-    ),
-    [sections.certification]: (
-      <div
-        key={"certification"}
-        draggable
-        onDragOver={() => seTarget(info.certification?.id)}
-        onDragEnd={() => setSource(info.certification?.id)}
-        className={`${styles.section} ${
-          info.certification?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>
-          {info.certification?.sectionTitle}
-        </div>
-        <div className={styles.content}>
-          {info.certification?.points?.length > 0 ? (
-            <ul className={styles.numbered}>
-              {info.certification?.points?.map((elem, index) => (
-                <li className={styles.point} key={elem[0] + index}> 
-                  {elem}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <span />
-          )}
-        </div>
-      </div>
-    ),
-    [sections.summary]: (
-      <div
-        key={"summary"}
-        draggable
-        onDragOver={() => seTarget(info.summary?.id)}
-        onDragEnd={() => setSource(info.summary?.id)}
-        className={`${styles.section} ${
-          info.summary?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>{info.summary?.sectionTitle}</div>
-        <div className={styles.content}>
-          <p className={styles.overview}>{info.summary?.detail}</p>
-        </div>
-      </div>
-    ),
-    [sections.achievement]: (
-      <div
-        key={"achievement"}
-        draggable
-        onDragOver={() => seTarget(info.achievement?.id)}
-        onDragEnd={() => setSource(info.achievement?.id)}
-        className={`${styles.section} ${
-          info.achievement?.sectionTitle ? "" : styles.hidden
-        }`}
-      >
-        <div className={styles.sectionTitle}>
-          {info.achievement?.sectionTitle}
-        </div>
-        <div className={styles.content}>
-          {info.achievement?.points?.length > 0 ? (
-            <ul className={styles.numbered}>
-              {info.achievement?.points?.map((elem, index) => (
-                <li className={styles.point} key={elem[0] + index}> 
-                  {elem}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <span />
-          )}
-        </div>
-      </div>
-    ),
-  };
-
-  const swapSourceTarget = (source, target) => {
-    if (!source || !target) return;
-    const tempColumns = [[...columns[0]], [...columns[1]]];
-
-    let sourceRowIndex = tempColumns[0].findIndex((item) => item === source);
-    let sourceColumnIndex = 0;
-    if (sourceRowIndex < 0) {
-      sourceColumnIndex = 1;
-      sourceRowIndex = tempColumns[1].findIndex((item) => item === source);
-    }
-
-    let targetRowIndex = tempColumns[0].findIndex((item) => item === target);
-    let targetColumnIndex = 0;
-    if (targetRowIndex < 0) {
-      targetColumnIndex = 1;
-      targetRowIndex = tempColumns[1].findIndex((item) => item === target);
-    }
-
-    const tempSource = tempColumns[sourceColumnIndex][sourceRowIndex];
-    tempColumns[sourceColumnIndex][sourceRowIndex] =
-      tempColumns[targetColumnIndex][targetRowIndex];
-
-    tempColumns[targetColumnIndex][targetRowIndex] = tempSource;
-
-    setColumns(tempColumns);
-  };
-
-  useEffect(() => {
-    setColumns([
-      [sections.project, sections.education,sections.certification],
-      [sections.skills, sections.workExp, sections.achievement],
-    ]);
-  }, []);
-
-  useEffect(() => {
-    swapSourceTarget(source, target);
-  }, [source]);
-
   useEffect(() => {
     const container = containerRef.current;
     if (!props.activeColor || !container) return;
 
     container.style.setProperty("--color", props.activeColor);
-  }, [props.activeColor]);
+  }, [props.activeColor, info]);
+
+  console.log(info);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} id="resume">
       <div ref={containerRef} className={styles.container}>
-        {/* Add the logo to the top left */}
-        <img src={logo} alt="Logo" className={styles.logo} />
-        <div className={styles.header}>
-          <p className={styles.heading}>{info.basicInfo?.detail?.name}</p>
-          <p className={styles.subHeading}>{info.basicInfo?.detail?.title}</p>
+        <div className="resume-container">
+          <header>
+            <div className="header">
+              <div className="left-section">
+                <h1>{info.basicInfo?.detail?.name}</h1>
+                <h2>{info.basicInfo?.detail?.prName}</h2>
+                <p>{info.basicInfo?.detail?.address}</p>
+              </div>
+              <div className="right-section">
+                <img src={logo} alt="Logo" />
+                <p>
+                  <div className={styles.links}>
+                    {info.basicInfo?.detail?.email ? (
+                      <p className={styles.link} type="email" href={`mailto:${info.basicInfo?.detail?.email}`}>
+                        {info.basicInfo?.detail?.email}
+                      </p>
+                    ) : (
+                      <span />
+                    )}
+                  </div>
+                </p>
+                <p>
+                  {info.basicInfo?.detail?.phone ? (
+                    <p className={styles.link} href={`tel:${info.basicInfo?.detail?.phone}`}>
+                      {info.basicInfo?.detail?.phone}
+                    </p>
+                  ) : (
+                    <span />
+                  )}
+                </p>
+              </div>
+            </div>
+          </header>
 
-          <div className={styles.links}>
-            {info.basicInfo?.detail?.email ? (
-              <a className={styles.link} type="email" href={`mailto:${info.basicInfo?.detail?.email}`}>
-                <AtSign />
-                {info.basicInfo?.detail?.email}
-              </a>
-            ) : (
-              <span />
-            )}
-            {info.basicInfo?.detail?.phone ? (
-              <a className={styles.link} href={`tel:${info.basicInfo?.detail?.phone}`}>
-                <Phone />
-                {info.basicInfo?.detail?.phone}
-              </a>
-            ) : (
-              <span />
-            )}
-            {info.basicInfo?.detail?.linkedin ? (
-              <a className={styles.link} href={info.basicInfo?.detail?.linkedin}>
-                <Linkedin />
-                {info.basicInfo?.detail?.linkedin}
-              </a>
-            ) : (
-              <span />
-            )}
-            {info.basicInfo?.detail?.github ? (
-              <a className={styles.link} href={info.basicInfo?.detail?.github}>
-                <GitHub />
-                {info.basicInfo?.detail?.github}
-              </a>
-            ) : (
-              <span />
-            )}
-          </div>
-        </div>
-        <div className={styles.summarySection}>
-          {sectionDiv[sections.summary]}
-        </div>
+          <section>
+            <h3>Professional Summary</h3>
+            <p>{info.summary?.detail}</p>
+          </section>
+          <section>
+            <h3>Education</h3>
+            <p>
+              <div className={styles.content}>
+                {info.education?.details?.map((item) => (
+                  <div className={styles.item} key={item.cName}>
+                    {item.cName ? (
+                      <p className={styles.title}><b>{item.cName} From {item.college}</b></p>
+                    ) : (
+                      <span />
+                    )}
+                    {item.startDate && item.endDate ? (
+                      <div className={styles.date}>
+                        <Calendar /> {getFormattedDate(item.startDate)} -
+                        {getFormattedDate(item.endDate)}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    <br />
+                  </div>
+                ))}
+              </div>
+            </p>
+          </section>
 
-        <div className={styles.main}>
-          <div className={styles.col1}>
-            {columns[0].map((item) => sectionDiv[item])}
-          </div>
-          <div className={styles.col2}>
-            {columns[1].map((item) => sectionDiv[item])}
-          </div>
+          <section>
+            <h3>Skill Set</h3>
+            <ul className="skills-list">
+              {info.skills?.points?.length > 0 ? (
+                <ul className={styles.hard}>
+                  {info.skills?.points?.map((elem, index) => (
+                    <li className={styles.hardpoint} key={elem[0] + index}>
+                      {elem}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span />
+              )}
+            </ul>
+          </section>
+
+          <section>
+            <h3>Work Experience</h3>
+
+            <div className="job">
+              <h4>
+                <div className={styles.content}>
+                  {info.workExp?.details?.map((item) => (
+                    <div className={styles.item} key={item.designation}>
+                      {item.designation ? (
+                        <p className={styles.title}><b>{item.designation} at {item.companyName}</b></p>
+                      ) : (
+                        <span />
+                      )}
+                      {item.certificationLink ? (
+                        <a className={styles.link} href={item.certificationLink}>
+                          <Paperclip />
+                          {item.certificationLink}
+                        </a>
+                      ) : (
+                        <span />
+                      )}
+                      {item.startDate && item.endDate ? (
+                        <div className={styles.date}>
+                          <Calendar /> {getFormattedDate(item.startDate)}-
+                          {getFormattedDate(item.endDate)}
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                      {item.location ? (
+                        <p className={styles.subTitle}>
+                          <b>Location :  {item.location}</b>
+                        </p>
+                      ) : (
+                        <span />
+                      )}
+                      <br />
+                    </div>
+                  ))}
+                </div>
+              </h4>
+            </div>
+          </section>
+          <section>
+            <h3>Projects</h3>
+            <p>
+              <div className={styles.content}>
+                {info.project?.details?.map((item) => (
+                  <div className={styles.item} key={item.pName}>
+                    {item.pName ? (
+                      <p className={styles.title}><b>Project : </b>{item.pName}</p>
+                    ) : (
+                      <span />
+                    )}
+                    <br />
+                    {item.link ? (
+                      <p className={styles.subTitle}>
+                        <b>Technologies : </b>
+                        {item.link}
+                      </p>
+                    ) : (
+                      <span />
+                    )}
+                    <br />
+                    {item.overview ? (
+                      <p className={styles.overview}> <b className={styles.subTitle}>Description : </b> {item.overview} </p>
+                    ) : (
+                      <span />
+                    )}
+                    <br />
+                    <p className={styles.subTitle}>Responsibilities :</p>
+                    {item.points?.length > 0 ? (
+                      <ul className={styles.numbered}>
+                        {item.points?.map((elem, index) => (
+                          <li className={styles.point} key={elem + index}>
+                            {elem}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span />
+                    )}
+                    <br />
+                  </div>
+                ))}
+              </div>
+            </p>
+          </section>
+
+          <section>
+            <h3>Certification</h3>
+            <p>
+              <div className={styles.content}>
+                {info.certification?.points?.length > 0 ? (
+                  <ul className={styles.numbered}>
+                    {info.certification?.points?.map((elem, index) => (
+                      <li className={styles.point} key={elem[0] + index}>
+                        {elem}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span />
+                )}
+              </div>
+            </p>
+          </section>
+          <section>
+            <h3>Achievement</h3>
+            <p>
+              <div className={styles.content}>
+                {info.achievement?.points?.length > 0 ? (
+                  <ul className={styles.numbered}>
+                    {info.achievement?.points?.map((elem, index) => (
+                      <li className={styles.point} key={elem[0] + index}>
+                        {elem}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span />
+                )}
+              </div>
+            </p>
+          </section>
         </div>
       </div>
+      <button onClick={handleSaveResume} className={styles.saveresume}>Save Resume</button>
     </div>
   );
 });

@@ -5,13 +5,14 @@ import resumeSvg from "../../Assets/resume1.svg"
  function Header() {
   
     return(
+        
      <div className= {styles.container}>
         <div className={styles.left}>
         <p className={styles.heading}>
-            A <span>Resume</span> that stands out !
+             <span>Netfotech</span> Solutions
         </p>
         <p className={styles.heading}>
-            Make your own resume. <span>It's free</span>
+            Turns Ideas into <span>Reality</span>
         </p>
 
     </div>

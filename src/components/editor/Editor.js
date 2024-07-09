@@ -20,7 +20,9 @@ function Editor(props) {
       
       const [values, setvalues] = useState({
         name: activeInformation?.detail?.name || "",
-        title: activeInformation?.detail?.title || "",
+        pName: activeInformation?.detail?.pName || "",
+        cName: activeInformation?.detail?.cName || "",
+        prName: activeInformation?.detail?.prName || "",
         linkedin: activeInformation?.detail?.linkedin || "",
         github: activeInformation?.detail?.github || "",
         phone: activeInformation?.detail?.phone || "",
@@ -42,9 +44,9 @@ function Editor(props) {
             <InputControl
               label="Designation"
               placeholder="Enter title eg. Frontend developer"
-              value={values.title}
+              value={values.designation}
               onChange={(event) =>
-                setvalues((prev) => ({ ...prev, title: event.target.value }))
+                setvalues((prev) => ({ ...prev, designation: event.target.value }))
               }
             />
             <InputControl
@@ -57,17 +59,6 @@ function Editor(props) {
             />
           </div>
           <div className={styles.row}>
-            <InputControl
-              label="Certificate Link"
-              placeholder="Enter certificate link"
-              value={values.certificationLink}
-              onChange={(event) =>
-                setvalues((prev) => ({
-                  ...prev,
-                  certificationLink: event.target.value,
-                }))
-              }
-            />
             <InputControl
               label="Location"
               placeholder="Enter location eg. Remote/On-Site"
@@ -124,25 +115,6 @@ function Editor(props) {
               }
             />
           </div>
-    
-          <div className={styles.column}>
-            <label>Enter work description</label>
-            <InputControl
-              placeholder="Line 1"
-              value={values.points ? values.points[0] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 0)}
-            />
-            <InputControl
-              placeholder="Line 2"
-              value={values.points ? values.points[1] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 1)}
-            />
-            <InputControl
-              placeholder="Line 3"
-              value={values.points ? values.points[2] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 2)}
-            />
-          </div>
         </div>
       );
 
@@ -151,41 +123,36 @@ function Editor(props) {
           <div className={styles.row}>
             <InputControl
               label="Name of your Project"
-              value={values.title}
+              value={values.pName}
               placeholder="Enter title eg. Chat app"
+              required
               onChange={(event) =>
-                setvalues((prev) => ({ ...prev, title: event.target.value }))
+                setvalues((prev) => ({ ...prev, pName: event.target.value }))
               }
             />
-          </div>
           <InputControl
-            label="Overview"
+            label="Description"
             value={values.overview}
-            placeholder="Enter basic overview of project"
+            placeholder="Enter basic Description of project"
+            required
             onChange={(event) =>
               setvalues((prev) => ({ ...prev, overview: event.target.value }))
             }
           />
+          </div>
           <div className={styles.row}>
             <InputControl
-              label="Deployed Link"
+              label="Technologies"
               value={values.link}
               placeholder="Enter deployed link of project"
+              required
               onChange={(event) =>
                 setvalues((prev) => ({ ...prev, link: event.target.value }))
               }
             />
-            <InputControl
-              label="Github Link"
-              value={values.github}
-              placeholder="Enter github link of project"
-              onChange={(event) =>
-                setvalues((prev) => ({ ...prev, github: event.target.value }))
-              }
-            />
           </div>
           <div className={styles.column}>
-            <label>Enter project description</label>
+            <label>Enter project Responsibilities</label>
             <InputControl
               placeholder="Line 1"
               value={values.points ? values.points[0] : ""}
@@ -214,10 +181,11 @@ function Editor(props) {
           <div className={styles.row}>
             <InputControl
               label="Course"
-              value={values.title}
+              value={values.cName}
               placeholder="Enter title eg. B-tech"
+              required
               onChange={(event) =>
-                setvalues((prev) => ({ ...prev, title: event.target.value }))
+                setvalues((prev) => ({ ...prev, cName: event.target.value }))
               }
             />
           </div>
@@ -225,6 +193,7 @@ function Editor(props) {
             label="College/School Name"
             value={values.college}
             placeholder="Enter name of your college/school"
+            required
             onChange={(event) =>
               setvalues((prev) => ({ ...prev, college: event.target.value }))
             }
@@ -234,6 +203,7 @@ function Editor(props) {
               label="Start Date"
               type="date"
               placeholder="Enter start date of this education"
+              required
               value={values.startDate}
               onChange={(event) => {
 
@@ -257,6 +227,7 @@ function Editor(props) {
               label="End Date"
               type="date"
               placeholder="Enter end date of this education"
+              required
               value={values.endDate}
               onChange={(event) => {
 
@@ -284,6 +255,7 @@ function Editor(props) {
             <InputControl
               label="Full Name"
               placeholder="Enter your full name eg. Aashu"
+              required
               value={values.name}
               onChange={(event) =>
                 setvalues((prev) => ({ ...prev, name: event.target.value }))
@@ -291,28 +263,11 @@ function Editor(props) {
             />
             <InputControl
               label="Profession"
-              value={values.title}
+              value={values.prName}
               placeholder="Enter your title eg. Frontend developer"
+              required
               onChange={(event) =>
-                setvalues((prev) => ({ ...prev, title: event.target.value }))
-              }
-            />
-          </div>
-          <div className={styles.row}>
-            <InputControl
-              label="Linkedin Link"
-              value={values.linkedin}
-              placeholder="Enter your linkedin profile link"
-              onChange={(event) =>
-                setvalues((prev) => ({ ...prev, linkedin: event.target.value }))
-              }
-            />
-            <InputControl
-              label="Github Link"
-              value={values.github}
-              placeholder="Enter your github profile link"
-              onChange={(event) =>
-                setvalues((prev) => ({ ...prev, github: event.target.value }))
+                setvalues((prev) => ({ ...prev, prName: event.target.value }))
               }
             />
           </div>
@@ -321,6 +276,7 @@ function Editor(props) {
               label="Email Address"
               value={values.email}
               placeholder="Enter your email"
+              required
               onChange={(event) =>
                 setvalues((prev) => ({ ...prev, email: event.target.value }))
               }
@@ -329,11 +285,23 @@ function Editor(props) {
               label="Enter phone No."
               value={values.phone}
               placeholder="Enter your phone number"
+              required
               onChange={(event) =>
                 setvalues((prev) => ({ ...prev, phone: event.target.value }))
               }
             />
-          </div>
+            </div>
+            <div className={styles.row}>
+            <InputControl
+              label="Address"
+              value={values.address}
+              placeholder="Enter your Adress"
+              onChange={(event) =>
+                setvalues((prev) => ({ ...prev, address: event.target.value }))
+              }
+            />
+            </div>
+          
         </div>
       );
       const skillsBody = (
@@ -342,7 +310,7 @@ function Editor(props) {
             <label>List your Skills</label>
             <InputControl
               placeholder="Skills 1"
-              value={values.points ? values.points[0] : "Technologies used : "}
+              value={values.points ? values.points[0] : "Technologies : "}
               onChange={(event) => handlePointUpdate(event.target.value, 0)}
             />
             <InputControl
@@ -416,6 +384,7 @@ function Editor(props) {
             label="Summary"
             value={values.summary}
             placeholder="Enter your objective/summary"
+            required
             onChange={(event) =>
               setvalues((prev) => ({ ...prev, summary: event.target.value }))
             }
@@ -484,18 +453,50 @@ function Editor(props) {
       };
 
       const handleSubmission = () => {
+       
+        // const requiredFields = [
+        //   "name",
+          
+        //   "email",
+        //   "phone",
+
+          
+        // ];
+        // for (let field of requiredFields) {
+        //   if (!values[field]) {
+        //     alert(`Please fill out the ${field} field.`);
+        //     return;
+        //   }
+        // }
 
         switch (sections[activeSectionKey]) {
           case sections.basicInfo: {
             const tempDetail = {
               name: values.name,
-              title: values.title,
+              prName: values.prName,
               linkedin: values.linkedin,
               github: values.github,
               email: values.email,
               phone: values.phone,
+              address: values.address,
             };
-    
+            if(values.name==0){
+              alert("please Fill the name field")
+              break;
+            }
+            if(values.prName==0){
+              alert("please Fill the Profession field")
+              break;
+            }
+            if(values.email==0){
+              alert("please Fill the email field")
+              break;
+            }
+            if(values.phone==0){
+              alert("please Fill the phone field")
+              break;
+            }
+            
             props.setInformation((prev) => ({
               ...prev,
               [sections.basicInfo]: {
@@ -519,10 +520,10 @@ function Editor(props) {
             }));
             break;
           }
-          case sections.workExp: {
+          case sections.workExp:{
             const tempDetail = {
               certificationLink: values.certificationLink,
-              title: values.title,
+              designation: values.designation,
               startDate: values.startDate,
               endDate: values.endDate,
               companyName: values.companyName,
@@ -537,9 +538,27 @@ function Editor(props) {
               alert("StartDate can not be greater than end date")
               return;
             }
+           
 
             const tempDetails = [...information[sections.workExp]?.details];
             tempDetails[activeDetailIndex] = tempDetail;
+            if(values.designation!=0){
+              if(values.companyName==0){
+                alert("please Fill the Company Name")
+                break;
+              }else if(values.location==0){
+                alert("please Fill the Location field")
+                break;
+              }
+              else if(values.startDate==0){
+                alert("please Fill the start date")
+                break;
+              }else if(values.endDate==0){
+                alert("please Fill the end Date")
+                break;
+              }
+              
+            }
     
             props.setInformation((prev) => ({
               ...prev,
@@ -553,14 +572,27 @@ function Editor(props) {
           }
           case sections.project: {
             const tempDetail = {
+              pName: values.pName,
               link: values.link,
-              title: values.title ,
               overview: values.overview,
               github: values.github,
               points: values.points,
             };
+           
             const tempDetails = [...information[sections.project]?.details];
             tempDetails[activeDetailIndex] = tempDetail;
+            if(values.pName==0){
+              alert("please Fill the Project name field")
+              break;
+            }
+            if(values.overview==0){
+              alert("please Fill the Overview field")
+              break;
+            }
+            if(values.link==0){
+              alert("please Fill the Technologies field")
+              break;
+            }
     
             props.setInformation((prev) => ({
               ...prev,
@@ -574,7 +606,7 @@ function Editor(props) {
           }
           case sections.education: {
             const tempDetail = {
-              title: values.title,
+              cName: values.cName,
               college: values.college,
               startDate: values.startDate,
               endDate: values.endDate,
@@ -588,7 +620,23 @@ function Editor(props) {
             }
             const tempDetails = [...information[sections.education]?.details];
             tempDetails[activeDetailIndex] = tempDetail;
-    
+            if(values.cName==0){
+              alert("please Fill the Course field")
+              break;
+            }
+            if(values.college==0){
+              alert("please Fill the College field")
+              break;
+            }
+            if(values.startDate==0){
+              alert("please Fill start date")
+              break;
+            }
+            if(values.endDate==0){
+              alert("please Fill End date")
+              break;
+            }
+            
             props.setInformation((prev) => ({
               ...prev,
               [sections.education]: {
@@ -615,6 +663,10 @@ function Editor(props) {
           }
           case sections.summary: {
             const tempDetail = values.summary;
+            if(values.summary==0){
+              alert("please Fill the summary field")
+              break;
+            }
     
             props.setInformation((prev) => ({
               ...prev,
@@ -710,9 +762,12 @@ function Editor(props) {
             : activeInfo?.points
             ? [...activeInfo.points]
             : "",
-          title: activeInfo?.details
-            ? activeInfo.details[0]?.title || ""
-            : activeInfo?.detail?.title || "",
+          designation: activeInfo?.details
+            ? activeInfo.details[0]?.designation || ""
+            : activeInfo?.detail?.designation || "",
+          prName: activeInfo?.details
+            ? activeInfo.details[0]?.prName || ""
+            : activeInfo?.detail?.prName || "",
           linkedin: activeInfo?.detail?.linkedin || "",
           github: activeInfo?.details
             ? activeInfo.details[0]?.github || ""
@@ -722,6 +777,12 @@ function Editor(props) {
           summary: typeof activeInfo?.detail !== "object" ? activeInfo.detail : "",
           achievement: typeof activeInfo?.detail !== "object" ? activeInfo.detail : "",
           skills: typeof activeInfo?.detail !== "object" ? activeInfo.detail : "",
+          pName: activeInfo?.details
+          ? activeInfo.details[0]?.pName || ""
+          : activeInfo?.detail?.pName || "",
+          cName: activeInfo?.details
+          ? activeInfo.details[0]?.cName || ""
+          : activeInfo?.detail?.cName || "",
         });
       }, [activeSectionKey]);
     
@@ -745,7 +806,7 @@ function Editor(props) {
           startDate: activeInfo.details[activeDetailIndex]?.startDate || "",
           endDate: activeInfo.details[activeDetailIndex]?.endDate || "",
           points: activeInfo.details[activeDetailIndex]?.points || "",
-          title: activeInfo.details[activeDetailIndex]?.title || "",
+          designation: activeInfo.details[activeDetailIndex]?.designation || "",
           linkedin: activeInfo.details[activeDetailIndex]?.linkedin || "",
           github: activeInfo.details[activeDetailIndex]?.github || "",
           college: activeInfo.details[activeDetailIndex]?.college || "",

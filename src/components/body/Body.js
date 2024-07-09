@@ -1,6 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, } from "react";
 import ReactToPrint from "react-to-print";
-import { ArrowDown } from "react-feather";
+import { ArrowDown, ArrowLeft } from "react-feather";
+import { useNavigate } from 'react-router-dom';
 
 import Editor from "../editor/Editor";
 import Resume from "../resume/Resume";
@@ -65,8 +66,14 @@ function Body() {
     },
 
   });
+  const navigate = useNavigate();
+  const handleBack = (event) => {
+    event.preventDefault();
+    navigate('/Home');
+  };
 
   return (
+
     <div className={styles.container}>
       <p className={styles.heading}>Resume Builder</p>
       <div className={styles.toolbar}>
@@ -82,6 +89,7 @@ function Body() {
             />
           ))}
         </div>
+        < button className={styles.backR} onClick={handleBack}>Back To Home <ArrowLeft /></button>
         <ReactToPrint
           trigger={() => {
             return (

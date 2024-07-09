@@ -1,86 +1,170 @@
-// src/components/Home.jsx
-import React from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../userContext';
-import "./Home.css";
-import share from"../../Assets/share.png"
-import share1 from "../../Assets/share (1).png"
-import share2 from "../../Assets/share (2).png"
+import axios from 'axios';
+import './Home.css';
 
-export default function Home() {
-    const navigate = useNavigate();
-    const { user } = useUser();
+function Home() {
+  const navigate = useNavigate();
+  const { user, setUser } = useUser();
+  axios.defaults.withCredentials = true;
 
-    const handleLogout = (event) => {
-        event.preventDefault();
-        navigate('/login');
+  useEffect(() => {
+    if (!user) {
+      alert("Please login first");
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleLogout = (event) => {
+    event.preventDefault();
+    axios.post('http://localhost:9002/logout')
+    .then(response => {
+      alert("logout succesfully")
+    })
+    .catch(error => {
+      console.error('Error making logout request:', error);
+    });
+    setUser(null);
+    navigate('/login');
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleCreateResume = (event) => {
+    event.preventDefault();
+    navigate('/resume');
+  };
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [resumes, setResumes] = useState([]);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  useEffect(() => {
+    const fetchResumes = async () => {
+      try {
+        const response = await axios.get('http://localhost:9002/getResumes');
+        setResumes(response.data);
+      } catch (error) {
+        console.error('Error fetching resumes:', error);
+      }
     };
 
-    const handleCreateResume = (event) => {
-        event.preventDefault();
-        navigate('/resume');
+    fetchResumes();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
     };
 
-    
-    const getUsernameFromEmail = (email) => {
-        return email.split('@')[0];
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
 
-    return (
-        <div>
-            <nav>
-                <div className="nav-title">
-                    <h2>Welcome, {user ? getUsernameFromEmail(user.email) : 'Guest'}</h2>
-                </div>
-                <div className="button">
-                    <button className="logout-button" onClick={handleLogout}>Logout</button>
-                </div>
-            </nav>
-            <main>
-                <div className="db-container">
-                    <div className="main-nav">
-                        <div className="search">
-                            <label>
-                                <input type="search" />
-                                <button className="search-btn">Search Resume</button>
-                            </label>
-                        </div>
-                        <div>
-                            <button className="resume-button" onClick={handleCreateResume}>Create Resume</button>
-                        </div>
-                    </div>
-                    <div className="table-cont">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Designation</th>
-                                    <th>Skills</th>
-                                    <th>Created By</th>
-                                    <th>View</th>
-                                    <th>Download</th>
-                                    <th>Share</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {/* Example data, replace with actual data */}
-                                <tr>
-                                    <td>{user ? user.name : 'Guest'}</td>
-                                    <td>Java Developer</td>
-                                    <td>Java, C++</td>
-                                    <td>{user ? user.name : 'Guest'}</td>
-                                    <td><img src={share1} className="t-logo" alt="view" /></td>
-                                    <td><img src={share2}className="t-logo" alt="download" /></td>
-                                    <td><img src={share} className="t-logo" alt="share" /></td>
-                                    <td><button>Delete</button></td>
-                                </tr>
-                                {/* Add more rows as needed */}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
+  const handleDownload = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:9002/download/${id}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'resume.pdf');
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:9002/delete/${id}`);
+      setResumes(resumes.filter(resume => resume._id !== id));
+    } catch (error) {
+      console.error('Error deleting resume:', error);
+    }
+  };
+  const getInitial = (name) => {
+    return name ? name.charAt(0) : 'G';
+  };
+
+  return (
+    <div className="h-container">
+      <header className='h-header'>
+        <div className='hamburger-d'>
+      <button className="hamburger-menu" onClick={toggleSidebar}>
+          &#9776;
+        </button>
         </div>
-    );
+        <div className='h1-head'>
+        <h1>Welcome, {user ? user.name : 'Guest'}</h1>
+        </div>
+        <div className="dropdown" ref={dropdownRef}>
+          <button className="dropdown-toggle" onClick={toggleDropdown}>
+            <span className="logout-icon"></span> {getInitial(user ? user.name : 'Guest')}
+          </button>
+          {dropdownOpen && (
+            <div className="dropdown-menu">
+              <button className="dropdown-item" onClick={handleLogout}>Logout</button>
+            </div>
+          )}
+        </div>
+      </header>
+      <div className="h-content">
+        <div className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+          <h2>Netfotech Solutions</h2>
+          <p>Turns Ideas Into Reality</p>
+        </div>
+        <div className="h-main">
+          <h2>Resume</h2>
+          <div className="search-create">
+            <input type="text" placeholder="Search resume" />
+            <button className="create-btn" onClick={handleCreateResume}>Create Resume</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Skills</th>
+                <th>Created By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {resumes.map((resume) => (
+                <tr key={resume._id}>
+                  <td>{resume.name}</td>
+                  <td>{resume.designation}</td>
+                  <td>{resume.skills.join(', ')}</td>
+                  <td>{user ? user.name : 'Guest'}</td>
+                  <td>
+                    <button className="action-btn download" onClick={() => handleDownload(resume._id)}>Download</button>
+                    <button className="action-btn delete" onClick={() => handleDelete(resume._id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <button className="toggle-sidebar" onClick={toggleSidebar}>
+        {sidebarOpen ? '<' : '>'}
+      </button>
+    </div>
+  );
 }
+
+export default Home;

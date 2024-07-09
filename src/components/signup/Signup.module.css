@@ -24,6 +24,7 @@
     object-fit: cover;
 }
 .contentBx{
+    background-color: white;
     display: flex;
     width: 50%;
     height: 100%;

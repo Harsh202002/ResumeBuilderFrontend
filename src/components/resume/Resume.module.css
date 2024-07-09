@@ -1,16 +1,16 @@
 .container {
   --color: #239ce2;
   min-width: 700px;
-  max-width: 850px;
+  max-width: 1000px;
   margin: 0 auto;
   flex: 1.2;
   height: fit-content;
-  min-height: 900px;
+  min-height: 1000px;
   box-shadow: 1px 1px 3px 2px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 30px;
-  padding: 30px;
+  /* padding: 30px; */
   position: relative;
 }
 
@@ -107,14 +107,14 @@
 
 .content .title {
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.2rem;
   line-height: 1.3rem;
 }
 
 .content .subTitle {
   font-weight: bold;
-  color: var(--color);
-  font-size: 1rem;
+  color: rgb(54, 50, 50);
+  font-size: 0.85rem;
 }
 
 .content .overview {
@@ -150,12 +150,45 @@
 .numbered {
   padding-left: 18px;
   font-size: 0.875rem;
+  list-style: none;
+}
+.hard{
+  list-style: none;
+  list-style-type: none;
 }
 
 .numbered li {
-  list-style-type: decimal;
+  
+  list-style-type: disc;
 }
 
 .hidden {
   display: none;
+}
+/* .hard{
+  list-style: none;
+}
+.hard_points{
+  list-style-type: none;
+} */
+.EsubTitle{
+  font-size: 1.1rem;
+}
+.saveresume{
+  width: fit-content;
+    margin-top: 10px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    background-color: #239ce2;
+    color: #fff;
+    outline: none;
+    border: none;
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    cursor: pointer;
+    transition: 200ms;
 }
