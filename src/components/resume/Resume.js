@@ -60,7 +60,7 @@ const Resume = forwardRef((props, ref) => {
       formData.append('designation', info.workExp?.details[0]?.designation);
       formData.append('skills', info.skills?.points.join(','));
 
-      await axios.post('http://localhost:9002/saveResume', formData, {
+      await axios.post('https://resume-builder-app-aooz.onrender.com/saveResume', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },

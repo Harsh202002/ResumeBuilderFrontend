@@ -21,7 +21,7 @@ function Home() {
 
   const handleLogout = (event) => {
     event.preventDefault();
-    axios.post('http://localhost:9002/logout')
+    axios.post('https://resume-builder-app-aooz.onrender.com/logout')
     .then(response => {
       alert("logout succesfully")
     })
@@ -51,7 +51,7 @@ function Home() {
   useEffect(() => {
     const fetchResumes = async () => {
       try {
-        const response = await axios.get('http://localhost:9002/getResumes');
+        const response = await axios.get('https://resume-builder-app-aooz.onrender.com/getResumes');
         setResumes(response.data);
       } catch (error) {
         console.error('Error fetching resumes:', error);
@@ -76,7 +76,7 @@ function Home() {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:9002/download/${id}`, { responseType: 'blob' });
+      const response = await axios.get(`https://resume-builder-app-aooz.onrender.com/download/${id}`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -90,7 +90,7 @@ function Home() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:9002/delete/${id}`);
+      await axios.delete(`https://resume-builder-app-aooz.onrender.com/delete/${id}`);
       setResumes(resumes.filter(resume => resume._id !== id));
     } catch (error) {
       console.error('Error deleting resume:', error);

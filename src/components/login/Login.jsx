@@ -25,7 +25,7 @@ export default function Login() {
 
     const login = (event) => {
         event.preventDefault();
-        axios.post("http://localhost:9002/login", userInput)
+        axios.post("https://resume-builder-app-aooz.onrender.com/login", userInput)
             .then(res => {
                 alert(res.data.message);
                 if (res.data.user) {
