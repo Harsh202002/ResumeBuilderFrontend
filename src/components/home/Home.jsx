@@ -19,17 +19,16 @@ function Home() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const handleLogout = (event) => {
+  const handleLogout = async (event) => {
     event.preventDefault();
-    axios.post('https://resume-builder-app-aooz.onrender.com/logout')
-    .then(response => {
-      alert("logout succesfully")
-    })
-    .catch(error => {
+    try {
+      await axios.post('http://resume-builder-app-aooz.onrender.com/logout', {}, { withCredentials: true });
+      alert("Logout successfully");
+      setUser(null);
+      navigate('/login');
+    } catch (error) {
       console.error('Error making logout request:', error);
-    });
-    setUser(null);
-    navigate('/login');
+    }
   };
 
   const toggleDropdown = () => {
@@ -54,12 +53,17 @@ function Home() {
         const response = await axios.get('https://resume-builder-app-aooz.onrender.com/getResumes');
         setResumes(response.data);
       } catch (error) {
-        console.error('Error fetching resumes:', error);
+        if (error.response && error.response.status === 401) {
+          alert('Session expired, please login again.');
+          navigate('/login');
+        } else {
+          console.error('Error fetching resumes:', error);
+        }
       }
     };
 
     fetchResumes();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
