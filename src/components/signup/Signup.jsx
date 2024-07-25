@@ -29,6 +29,7 @@ export default function Signup() {
         if (name && email && password && (password === reEnterPassword)) {
             try {
                 const res = await axios.post("https://resume-builder-app-aooz.onrender.com/signup", user);
+               // "https://resume-builder-app-aooz.onrender.com/signup"
                 if (res.data.message === "User already registered") {
                     alert("User already registered");
                 } else {

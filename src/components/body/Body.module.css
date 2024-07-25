@@ -68,3 +68,83 @@
 .backR{
   margin-left: 700px;
 }
+
+
+@media (min-width: 768px) {
+  .toolbar {
+      gap: 40px;
+  }
+  
+  .main {
+      flex-direction: row;
+      gap: 30px;
+  }
+  
+  .backR {
+      margin-left: auto;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .heading {
+      font-size: 2.5rem;
+  }
+  
+  .colors .color {
+      height: 40px;
+      width: 40px;
+  }
+  
+  .toolbar button {
+      padding: 10px 20px;
+      font-size: 1.1rem;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .heading {
+      font-size: 3rem;
+  }
+  
+  .colors .color {
+      height: 44px;
+      width: 44px;
+  }
+  
+  .toolbar button {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+  }
+  
+  .main {
+      gap: 40px;
+  }
+}
+
+/* Small devices (phones, 600px and down) */
+@media (max-width: 600px) {
+  .heading {
+      font-size: 1.5rem;
+  }
+  
+  .colors .color {
+      height: 30px;
+      width: 30px;
+  }
+  
+  .toolbar button {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+  }
+  
+  .main {
+      flex-direction: column;
+      gap: 10px;
+  }
+  
+  .backR {
+      align-self: center;
+  }
+}
