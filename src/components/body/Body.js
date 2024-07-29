@@ -1,11 +1,16 @@
-import React, { useRef, useState, } from "react";
+import React, { useRef, useState } from "react";
 import ReactToPrint from "react-to-print";
 import { ArrowDown, ArrowLeft } from "react-feather";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import html2pdf from 'html2pdf.js'
+import { useUser } from '../../userContext';
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import Editor from "../editor/Editor";
 import Resume from "../resume/Resume";
-import Footer from "../footer/Footer"
+import Footer from "../footer/Footer";
 import styles from "./Body.module.css";
 
 function Body() {
@@ -18,7 +23,7 @@ function Body() {
     project: "Projects",
     education: "Education",
     achievement: "Achievement",
-    certification:"Certification"
+    certification: "Certification"
   };
   const resumeRef = useRef();
 
@@ -64,16 +69,76 @@ function Body() {
       sectionTitle: sections.certification,
       detail: [],
     },
-
   });
+
   const navigate = useNavigate();
+  const { user } = useUser();
+
   const handleBack = (event) => {
     event.preventDefault();
     navigate('/Home');
   };
 
-  return (
+  const handleSaveResume = async () => {
+    try {
+      const input = document.getElementById('resume');
+      const opt = {
+        margin: 0.1,
+        filename: `resume_${user.name}_${new Date().getTime()}.pdf`,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak:{mode: ['css', 'legacy']}
+      };
+      const pdfBlob = await html2pdf().from(input).set(opt).outputPdf('blob');
+      const s3Client = new S3Client({
+        region: 'eu-north-1',
+        credentials: {
+          accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+        }
+      });
+      const fileKey = `resumes/${user.name}/${new Date().getTime()}.pdf`;
+      const params = {
+        Bucket: 'resume-private',
+        Key: fileKey,
+        Body: pdfBlob,
+        ContentType: 'application/pdf'
+      };
+      const command = new PutObjectCommand(params);
+      await s3Client.send(command);
 
+      const pdfUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+      const response = await axios.post('https://resume-builder-app-aooz.onrender.com/saveResume', {
+        name: resumeInformation[sections.basicInfo]?.detail?.name,
+        designation: resumeInformation[sections.workExp]?.details[0]?.designation,
+        skills: resumeInformation[sections.skills]?.points.join(','),
+        fileKey
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(response.data.message);
+      alert('Resume saved successfully');
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('Request data:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
+      alert('Failed to save resume. Please try again.');
+    }
+  };
+
+  return (
     <div className={styles.container}>
       <p className={styles.heading}>Resume Builder</p>
       <div className={styles.toolbar}>
@@ -82,14 +147,12 @@ function Body() {
             <span
               key={item}
               style={{ backgroundColor: item }}
-              className={`${styles.color} ${
-                activeColor === item ? styles.active : ""
-              }`}
+              className={`${styles.color} ${activeColor === item ? styles.active : ""}`}
               onClick={() => setActiveColor(item)}
             />
           ))}
         </div>
-        < button className={styles.backR} onClick={handleBack}>Back To Home <ArrowLeft /></button>
+        <button className={styles.backR} onClick={handleBack}>Back To Home <ArrowLeft /></button>
         <ReactToPrint
           trigger={() => {
             return (
@@ -100,6 +163,7 @@ function Body() {
           }}
           content={() => resumeRef.current}
         />
+        <button className={styles.saveResume} onClick={handleSaveResume}>Save Resume<ArrowDown/></button>
       </div>
       <div className={styles.main}>
         <Editor
@@ -113,9 +177,6 @@ function Body() {
           information={resumeInformation}
           activeColor={activeColor}
         />
-
-       
-
       </div>
     </div>
   );

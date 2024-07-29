@@ -1,15 +1,14 @@
 import React, { forwardRef, useEffect, useRef } from "react";
 import './Resume.css';
 import axios from 'axios';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+// import html2pdf from 'html2pdf.js';
 import { useUser } from '../../userContext';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Paperclip } from "react-feather";
 import styles from "./Resume.module.css";
 import logo from "../../Assets/netfologo.png";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+// import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+// import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const Resume = forwardRef((props, ref) => {
   const information = props.information;
@@ -37,81 +36,71 @@ const Resume = forwardRef((props, ref) => {
     certification: information[sections.certification],
   };
 
-  const handleSaveResume = async () => {
-    try {
-        const input = document.getElementById('resume');
-        const canvas = await html2canvas(input);
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'px',
-            format: [770, canvas.height]
-        });
-        pdf.addImage(imgData, 'PNG', 0, 0, 770, canvas.height);
-        const pdfBlob = pdf.output('blob');
+//   const handleSaveResume = async () => {
+//     try {
+//         const input = document.getElementById('resume');
 
-        const s3Client = new S3Client({
-            region: 'eu-north-1',
-            credentials: {
-                accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-            }
-        });
-        console.log("a")
-        const fileKey = `resumes/${user.name}/${new Date().getTime()}.pdf`;
-        const params = {
-            Bucket: 'resume-private',
-            Key: fileKey,
-            Body: pdfBlob,
-            ContentType: 'application/pdf'
-        };
-        console.log("b")
-        const command = new PutObjectCommand(params);
-        await s3Client.send(command);
+//         const opt = {
+//             margin:       0.1,
+//             filename:     `resume_${user.name}_${new Date().getTime()}.pdf`,
+//             image:        { type: 'jpeg', quality: 0.98 },
+//             html2canvas:  { scale: 2 },
+//             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+//         };
 
-        // Generate signed URL for the uploaded file
-        console.log("c")
-        const pdfUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+//         const pdfBlob = await html2pdf().from(input).set(opt).outputPdf('blob');
 
-        // Save resume details in MongoDB
-        console.log("d")
-        console.log(info); // Log the info object
-        console.log({
-            name: info.basicInfo.detail.name,
-            designation: info.workExp?.details[0]?.designation,
-            skills: info.skills?.points.join(','),
-            fileKey
-        });
+//         const s3Client = new S3Client({
+//             region: 'eu-north-1',
+//             credentials: {
+//                 accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+//                 secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+//             }
+//         });
 
-        const response = await axios.post('https://resume-builder-app-aooz.onrender.com/saveResume', {
-            name: info.basicInfo.detail.name,
-            designation: info.workExp?.details[0]?.designation,
-            skills: info.skills?.points.join(','),
-            fileKey // Save the fileKey instead of pdfUrl
-        },
-        {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        console.log("e")
+//         const fileKey = `resumes/${user.name}/${new Date().getTime()}.pdf`;
+//         const params = {
+//             Bucket: 'resume-private',
+//             Key: fileKey,
+//             Body: pdfBlob,
+//             ContentType: 'application/pdf'
+//         };
 
-        console.log(response.data.message);
-        alert('Resume saved successfully');
-    } catch (error) {
-        console.error('Error saving resume:', error);
-        if (error.response) {
-            console.error('Response data:', error.response.data);
-            console.error('Response status:', error.response.status);
-            console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
-            console.error('Request data:', error.request);
-        } else {
-            console.error('Error message:', error.message);
-        }
-        alert('Failed to save resume. Please try again.');
-    }
-}
+//         const command = new PutObjectCommand(params);
+//         await s3Client.send(command);
+
+//         // Generate signed URL for the uploaded file
+//         const pdfUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+//         // Save resume details in MongoDB
+//         const response = await axios.post('http://localhost:9002/saveResume', {
+//             name: info.basicInfo.detail.name,
+//             designation: info.workExp?.details[0]?.designation,
+//             skills: info.skills?.points.join(','),
+//             fileKey // Save the fileKey instead of pdfUrl
+//         },
+//         {
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+
+//         console.log(response.data.message);
+//         alert('Resume saved successfully');
+//     } catch (error) {
+//         console.error('Error saving resume:', error);
+//         if (error.response) {
+//             console.error('Response data:', error.response.data);
+//             console.error('Response status:', error.response.status);
+//             console.error('Response headers:', error.response.headers);
+//         } else if (error.request) {
+//             console.error('Request data:', error.request);
+//         } else {
+//             console.error('Error message:', error.message);
+//         }
+//         alert('Failed to save resume. Please try again.');
+//     }
+// }
 
 
   
@@ -119,6 +108,13 @@ const Resume = forwardRef((props, ref) => {
   const getFormattedDate = (value) => {
     if (!value) return "";
     const date = new Date(value);
+    const today = new Date();
+  
+    // Compare the input date with today's date
+    if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
+      return "Present";
+    }
+    
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
