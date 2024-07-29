@@ -335,7 +335,7 @@ const Resume = forwardRef((props, ref) => {
           </section>
         </div>
       </div>
-      <button onClick={handleSaveResume} className={styles.saveresume}>Save Resume</button>
+      {/* <button onClick={handleSaveResume} className={styles.saveresume}>Save Resume</button> */}
     </div>
   );
 });
