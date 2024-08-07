@@ -488,14 +488,14 @@ function Editor(props) {
               alert("please Fill the Profession field")
               break;
             }
-            if(values.email==0){
-              alert("please Fill the email field")
-              break;
-            }
-            if(values.phone==0){
-              alert("please Fill the phone field")
-              break;
-            }
+            // if(values.email==0){
+            //   alert("please Fill the email field")
+            //   break;
+            // }
+            // if(values.phone==0){
+            //   alert("please Fill the phone field")
+            //   break;
+            // }
             
             props.setInformation((prev) => ({
               ...prev,
@@ -628,14 +628,14 @@ function Editor(props) {
               alert("please Fill the College field")
               break;
             }
-            if(values.startDate==0){
-              alert("please Fill start date")
-              break;
-            }
-            if(values.endDate==0){
-              alert("please Fill End date")
-              break;
-            }
+            // if(values.startDate==0){
+            //   alert("please Fill start date")
+            //   break;
+            // }
+            // if(values.endDate==0){
+            //   alert("please Fill End date")
+            //   break;
+            // }
             
             props.setInformation((prev) => ({
               ...prev,
