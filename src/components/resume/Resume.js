@@ -162,9 +162,18 @@ const Resume = forwardRef((props, ref) => {
           </header>
 
           <section>
-            <h3>Professional Summary</h3>
-            <p>{info.summary?.detail}</p>
-          </section>
+  <h3>Professional Summary</h3>
+  <p>{info.summary?.detail}</p>
+
+  {/* Check if there are points in the summary and map through them */}
+  {Array.isArray(info.summary?.points) && info.summary.points.length > 0 && (
+    <ul>
+      {info.summary.points.map((point, index) => (
+        <li key={index}>{point}</li>
+      ))}
+    </ul>
+  )}
+</section>
           <section>
             <h3>Education</h3>
             <p>

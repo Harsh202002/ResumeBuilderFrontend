@@ -28,13 +28,67 @@ function Editor(props) {
         phone: activeInformation?.detail?.phone || "",
         email: activeInformation?.detail?.email || "",
         startDate : '',
-        endDate: ''
+        endDate: '',
+        points: [],
       });
 
       const handlePointUpdate = (value, index) => {
         const tempvalues = { ...values };
         if (!Array.isArray(tempvalues.points)) tempvalues.points = [];
         tempvalues.points[index] = value;
+        setvalues(tempvalues);
+      };
+      const handleAddPoint = () => {
+        const tempvalues = { ...values };
+      
+        // Ensure tempvalues.points is an array
+        if (!Array.isArray(tempvalues.points)) {
+          tempvalues.points = [];
+        }
+      
+        tempvalues.points.push(''); // Add a new empty point
+        setvalues(tempvalues);
+      };
+
+      const handleDeletePoint = (index) => {
+        const tempvalues = { ...values };
+        tempvalues.points.splice(index, 1); // Remove the point at the given index
+        setvalues(tempvalues);
+      };
+
+      const handleAddNewAchievement = () => {
+        const tempvalues = { ...values };
+        tempvalues.points = [...(values.points || []), ""]; // Add an empty string for a new achievement
+        setvalues(tempvalues);
+      };
+      const handleAddNewCertificate = () => {
+        const tempvalues = { ...values };
+        tempvalues.points = [...(values.points || []), ""]; // Add an empty string for a new certificate
+        setvalues(tempvalues);
+
+      };
+
+      const handleAddNewLine = () => {
+        const tempvalues = { ...values };
+        tempvalues.points = [...(values.points || []), ""]; // Add an empty string for a new line
+        setvalues(tempvalues);
+      };
+
+      const handleADeleteLine = (index) => {
+        const tempvalues = { ...values };
+        tempvalues.points = tempvalues.points.filter((_, i) => i !== index); // Remove the item at the specified index
+        setvalues(tempvalues);
+      };
+
+      const handleDeletePLine = (index) => {
+        const tempvalues = { ...values };
+        tempvalues.points = tempvalues.points.filter((_, i) => i !== index); // Remove the item at the specified index
+        setvalues(tempvalues);
+      };
+
+      const handleDeleteLine = (index) => {
+        const tempvalues = { ...values };
+        tempvalues.points = tempvalues.points.filter((_, i) => i !== index); // Remove the item at the specified index
         setvalues(tempvalues);
       };
 
@@ -130,15 +184,15 @@ function Editor(props) {
                 setvalues((prev) => ({ ...prev, pName: event.target.value }))
               }
             />
-          <InputControl
-            label="Description"
-            value={values.overview}
-            placeholder="Enter basic Description of project"
-            required
-            onChange={(event) =>
-              setvalues((prev) => ({ ...prev, overview: event.target.value }))
-            }
-          />
+            <InputControl
+              label="Description"
+              value={values.overview}
+              placeholder="Enter basic Description of project"
+              required
+              onChange={(event) =>
+                setvalues((prev) => ({ ...prev, overview: event.target.value }))
+              }
+            />
           </div>
           <div className={styles.row}>
             <InputControl
@@ -153,26 +207,18 @@ function Editor(props) {
           </div>
           <div className={styles.column}>
             <label>Enter project Responsibilities</label>
-            <InputControl
-              placeholder="Line 1"
-              value={values.points ? values.points[0] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 0)}
-            />
-            <InputControl
-              placeholder="Line 2"
-              value={values.points ? values.points[1] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 1)}
-            />
-            <InputControl
-              placeholder="Line 3"
-              value={values.points ? values.points[2] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 2)}
-            />
-            <InputControl
-              placeholder="Line 4"
-              value={values.points ? values.points[3] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 3)}
-            />
+            {values.points && values.points.map((point, index) => (
+            <div key={index} className={styles.inputRow}>
+              <InputControl
+                key={index}
+                placeholder={`Line ${index + 1}`}
+                value={point || ""}
+                onChange={(event) => handlePointUpdate(event.target.value, index)}
+              />
+              <button onClick={() => handleDeletePLine(index)}>X</button>
+              </div>
+            ))}
+            <button onClick={handleAddNewLine}>Add New Line</button>
           </div>
         </div>
       );
@@ -345,36 +391,17 @@ function Editor(props) {
         <div className={styles.detail}>
           <div className={styles.column}>
             <label>List your Certificates</label>
-            <InputControl
-              placeholder="Certificate 1"
-              value={values.points ? values.points[0] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 0)}
-            />
-            <InputControl
-              placeholder="Certificate 2"
-              value={values.points ? values.points[1] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 1)}
-            />
-            <InputControl
-              placeholder="Certificate 3"
-              value={values.points ? values.points[2] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 2)}
-            />
-            <InputControl
-              placeholder="Certificate 4"
-              value={values.points ? values.points[3] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 3)}
-            />
-            <InputControl
-              placeholder="Certificate 5"
-              value={values.points ? values.points[4] :""}
-              onChange={(event) => handlePointUpdate(event.target.value, 4)}
-            />
-             <InputControl
-              placeholder="Certificate 6"
-              value={values.points ? values.points[5] :""}
-              onChange={(event) => handlePointUpdate(event.target.value, 5 )}
-            />
+            {values.points && values.points.map((point, index) => (
+              <div key={index} className={styles.inputRow}>
+                <InputControl
+                  placeholder={`Certificate ${index + 1}`}
+                  value={point || ""}
+                  onChange={(event) => handlePointUpdate(event.target.value, index)}
+                />
+                <button onClick={() => handleDeleteLine(index)}>X</button> {/* Cross button */}
+              </div>
+            ))}
+            <button onClick={handleAddNewCertificate}>Add New Certificate</button>
           </div>
         </div>
       );
@@ -389,43 +416,39 @@ function Editor(props) {
               setvalues((prev) => ({ ...prev, summary: event.target.value }))
             }
           />
+          <div className={styles.pointsSection}>
+            {Array.isArray(values.points) && values.points.map((point, index) => (
+              <div key={index} className={styles.pointItem}>
+                <InputControl
+                  label={`Point ${index + 1}`}
+                  value={point}
+                  placeholder="Enter point"
+                  onChange={(event) => handlePointUpdate(event.target.value, index)}
+                />
+                <button onClick={() => handleDeletePoint(index)}>X</button>
+              </div>
+            ))}
+          </div>
+          <button onClick={handleAddPoint}>Add New Point</button>
         </div>
       );
       
       const achievementBody = (
         <div className={styles.detail}>
           <div className={styles.column}>
-            <label>List your Achievement</label>
-            <InputControl
-              placeholder="Achievement 1"
-              value={values.points ? values.points[0] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 0)}
-            />
-            <InputControl
-              placeholder="Achievement 2"
-              value={values.points ? values.points[1] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 1)}
-            />
-            <InputControl
-              placeholder="Achievement 3"
-              value={values.points ? values.points[2] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 2)}
-            />
-            <InputControl
-              placeholder="Achievement 4"
-              value={values.points ? values.points[3] : ""}
-              onChange={(event) => handlePointUpdate(event.target.value, 3)}
-            />
-            <InputControl
-              placeholder="Achievement 5"
-              value={values.points ? values.points[4] :""}
-              onChange={(event) => handlePointUpdate(event.target.value, 4)}
-            />
-             <InputControl
-              placeholder="Achievement 6"
-              value={values.points ? values.points[5] :""}
-              onChange={(event) => handlePointUpdate(event.target.value, 5 )}
-            />
+            <label>List your Achievements</label>
+            {values.points && values.points.map((point, index) => (
+            <div key={index} className={styles.inputRow}>
+              <InputControl
+                key={index}
+                placeholder={`Achievement ${index + 1}`}
+                value={point || ""}
+                onChange={(event) => handlePointUpdate(event.target.value, index)}
+              />
+              <button onClick={() => handleADeleteLine(index)}>X</button>
+              </div>
+            ))}
+            <button onClick={handleAddNewAchievement}>Add New Achievement</button>
           </div>
         </div>
       );
@@ -662,22 +685,26 @@ function Editor(props) {
               break;
           }
           case sections.summary: {
-            const tempDetail = values.summary;
-            if(values.summary==0){
-              alert("please Fill the summary field")
-              break;
+            let tempDetail = values.summary;
+          
+            // Ensure tempDetail is an array if it's not already
+            if (!Array.isArray(tempDetail)) {
+              tempDetail = [tempDetail];
             }
-    
+          
+            // Update information with summary and points
             props.setInformation((prev) => ({
               ...prev,
               [sections.summary]: {
                 ...prev[sections.summary],
-                detail: tempDetail,
+                detail: tempDetail.join(' '), // If you want to combine the array into a single string
+                points: values.points, // Make sure points are saved
                 sectionTitle,
               },
             }));
             break;
           }
+          
           case sections.achievement: {
             const tempPoints = values.points;
     
